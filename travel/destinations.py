@@ -4,6 +4,7 @@ from .forms import DestinationForm, CommentForm
 from . import db
 import os
 from werkzeug.utils import secure_filename
+from flask_login import current_user  
 
 destbp = Blueprint('destination', __name__, url_prefix='/destinations')
 
@@ -53,7 +54,7 @@ def comment(destination):
     destination = db.session.scalar(db.select(Destination).where(Destination.id==destination))
     if form.validate_on_submit():  
       #read the comment from the form
-      comment = Comment(text=form.text.data, destination=destination) 
+      comment = Comment(text=form.text.data, destination=destination, user=current_user) 
       #here the back-referencing works - comment.destination is set
       # and the link is created
       db.session.add(comment) 
@@ -63,4 +64,4 @@ def comment(destination):
       #flash('Your comment has been added', 'success')  
       print('Your comment has been added', 'success') 
     # using redirect sends a GET request to destination.show
-    return redirect(url_for('destination.show', id=destination))
+    return redirect(url_for('destination.show', id=destination.id))
